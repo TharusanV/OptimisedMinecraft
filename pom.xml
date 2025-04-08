@@ -15,7 +15,7 @@
     <lwjgl.natives>natives-windows</lwjgl.natives>
   </properties>
   
-      <dependencyManagement>
+    <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.lwjgl</groupId>
@@ -98,6 +98,18 @@
             <artifactId>steamworks4j</artifactId>
             <version>${steamworks4j.version}</version>
         </dependency>
+        
+        <!-- LWJGL OpenGL bindings -->
+		<dependency>
+		    <groupId>org.lwjgl</groupId>
+		    <artifactId>lwjgl-opengl</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.lwjgl</groupId>
+		    <artifactId>lwjgl-opengl</artifactId>
+		    <classifier>${lwjgl.natives}</classifier>
+		</dependency>
+
         
         <!-- JUnit Testing Dependency -->
 	    <dependency>
