@@ -2,63 +2,73 @@ package core;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import java.io.IOException;
+import java.nio.FloatBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.lwjgl.system.MemoryStack;
+
 import entities.ObjectCreator;
 import graphics.Shader;
 
 public class Renderer {
-	
-	private Shader shader;
-    private ObjectCreator triangle;
 
-    // Vertex and fragment shader source
-    private final String vertexShaderSource = """
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
+    private Shader shader;
+    private List<ObjectCreator> all3DObjects = new ArrayList<ObjectCreator>();
+    private Camera camera;
 
-        void main() {
-            gl_Position = vec4(aPos, 1.0);
-        }
-    """;
 
-    private final String fragmentShaderSource = """
-        #version 330 core
-        out vec4 FragColor;
 
-        void main() {
-            FragColor = vec4(1.0, 0.3, 0.2, 1.0); // Red
-        }
-    """;
-	
-	public Renderer() {
-		glEnable(GL_DEPTH_TEST);
-        glEnable(GL_STENCIL_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		
-		
-		shader = new Shader(vertexShaderSource, fragmentShaderSource);
-		
-		float[] triangleVerts3D = {
-	             0.0f,  0.5f, 0.0f,   // Top
-	            -0.5f, -0.5f, 0.0f,   // Bottom left
-	             0.5f, -0.5f, 0.0f    // Bottom right
-	        };
-		
-		triangle = new ObjectCreator(triangleVerts3D, 3); 
-		
-		
-		
-	}
-
-    public void draw() {    	
-    	shader.use();   
+    public Renderer(Camera p_camera, Shader p_Shader) {
     	
-        triangle.draw();
+    	this.camera = p_camera;
+    	this.shader = p_Shader;
+    	
+        // Enable OpenGL features
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+    }
+
+    public void draw() {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        shader.use();
+
+        // Create transformation matrices
+        Matrix4f model = new Matrix4f().identity();
+        Matrix4f view = camera.getViewMatrix();
+        Matrix4f projection = camera.getProjectionMatrix();
+
+        // Use the shader's built-in uniform setter
+        shader.setUniformMatrix4f("model", model);
+        shader.setUniformMatrix4f("view", view);
+        shader.setUniformMatrix4f("projection", projection);
+
+        for(ObjectCreator object : all3DObjects) {
+        	object.draw();
+        }
     }
 
     public void cleanup() {
-    	triangle.cleanup(); // Free VAO/VBO
+        // Free VAO/VBO
+    	for(ObjectCreator object : all3DObjects) {
+        	object.cleanup();
+        }
     	
         shader.cleanup();   // Free shader program
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////////
+    
+    public void addOjectToRenderObjectList(ObjectCreator p_obj) {
+    	all3DObjects.add(p_obj);
     }
 }

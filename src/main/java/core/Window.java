@@ -45,6 +45,8 @@ public class Window {
 
         glfwMakeContextCurrent(window); //Tells GLFW and OpenGL that all OpenGL calls should apply to this window (OpenGL needs to know which context to apply commands to)
         
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        
         glfwSwapInterval(1); // 1 Enable V-Sync which syncs to monitor's refresh rate (Prevents screen tearing) / 0 would mean no-sync therefore maxing out the framerate (can cause tearing but lowers latency)
         
         glfwShowWindow(window);
